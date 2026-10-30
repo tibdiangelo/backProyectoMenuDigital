@@ -16,7 +16,7 @@ app.get('/api/menu', (req, res) => {
         { id: 1, nombre: 'Pizza Hawaiana (Mediana)', precio: 35000 },
         { id: 2, nombre: 'Pizza pepperoni (Mediana)', precio: 35000 },
         { id: 3, nombre: 'Pizza jamon y queso (Mediana)', precio: 35000 },
-        { id: 4, nombre: 'Pizza napolitana (Mediana)', precio: 350000 },
+        { id: 4, nombre: 'Pizza napolitana (Mediana)', precio: 35000 },
         
         // Las 3 Sodas
         { id: 5, nombre: 'Soda de Maracuyá', precio: 9000 },
