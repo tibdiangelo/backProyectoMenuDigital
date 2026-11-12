@@ -6,7 +6,7 @@ const PORT = 3000;
 app.use(cors());
 app.use(express.json());
 app.get('/', (req, res) => {
-    res.send ('servidor del menú digital funcionando correctamente');
+    res.send ('Servidor del menú digital funcionando correctamente');
 });
 
 // Menú completo: 4 pizzas y 3 sodas
