@@ -1,10 +1,5 @@
 const supabase = require("../../config/supabaseClient");
 
-const supabase = createClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_KEY
-);
-
 const getAllMenu = async () => {
     const { data, error } = await supabase
         .from("plato")
