@@ -15,10 +15,12 @@ const obtenerUsuarioPorIdDB = async (id) => {
 };
 
 // 3. Crear un usuario nuevo
-const crearUsuarioDB = async (nombre, email, password, rol) => {
+const crearUsuarioDB = async (nombre, email, password, rol_id) => {
     const { data, error } = await supabase
         .from('usuarios')
-        .insert([{ nombre, email, password, rol }]);
+        .insert([{ nombre, email, password, rol_id }])
+        .select()
+        .single();
     if (error) throw error;
     return data;
 };
@@ -28,7 +30,9 @@ const actualizarUsuarioDB = async (id, camposActualizados) => {
     const { data, error } = await supabase
         .from('usuarios')
         .update(camposActualizados)
-        .eq('id', id);
+        .eq('id', id)
+        .select()
+        .single();
     if (error) throw error;
     return data;
 };

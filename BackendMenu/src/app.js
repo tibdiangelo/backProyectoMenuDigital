@@ -1,7 +1,13 @@
+try {
+    process.loadEnvFile();
+} catch {
+    // Si no existe .env, se usan los valores por defecto del código.
+}
+
 const express =require ("express");
 const cors =require("cors");
 const app = express ();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 const mesaRutas =require( "../routers/mesa.rutas");
 const pedidoRutas =require("../routers/pedido.ruta");
 const usuarioRutas =require("../routers/usuario.ruta");
