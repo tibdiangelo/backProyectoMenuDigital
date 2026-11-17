@@ -19,11 +19,15 @@ const rolRutas =require("../routers/rol.ruta");
 
 
 
-app.use (express.json());
+app.use(express.json());
 app.use(cors({
-  origin: 'http://localhost:5173',
+  origin: [
+    'http://localhost:5173',                
+    'https://proyectomenudigital.vercel.app/'        
+  ],
   credentials: true,
 }));
+
 app.use("/api/mesas",  mesaRutas);
 app.use("/api/pedidos", pedidoRutas);
 app.use("/api/usuarios", usuarioRutas);
