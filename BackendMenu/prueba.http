@@ -7,4 +7,4 @@ GET http://localhost:3000/api/rol
 - Detalles pedido: Http:localhost:3000/api/detalles
 - Estados pedido: Http:localhost:3000/api/estados
 - Rol: Http:localhost:3000/api/rol
-* Pedidos: Http:localhost:3000/api/pedidos
+- Pedidos: Http:localhost:3000/api/pedidos
