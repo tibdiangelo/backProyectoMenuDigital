@@ -24,8 +24,15 @@ const obtenerPedidoPorId = async (req, res) => {
 // Crear un pedido
 const crearPedido = async (req, res) => {
     try {
-        const { mesa_id, usuario_id, total, estado } = req.body;
-        const nuevoPedido = await pedidoServicio.crearPedidoDB(mesa_id, usuario_id, total, estado);
+        const { mesa_id, usuario_id, total, estado, cliente_nombre, notas } = req.body;
+        const nuevoPedido = await pedidoServicio.crearPedidoDB(
+            mesa_id,
+            usuario_id,
+            total,
+            estado,
+            cliente_nombre,
+            notas
+        );
         res.status(201).json({ mensaje: "Pedido creado con éxito", data: nuevoPedido });
     } catch (error) {
         res.status(500).json({ error: error.message });

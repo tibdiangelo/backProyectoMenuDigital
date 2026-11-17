@@ -5,6 +5,9 @@ const usuarioControlador = require('../controllers/usuario.controlador');
 // GET /api/usuarios -> Ver todos los usuarios
 router.get('/', usuarioControlador.obtenerUsuarios);
 
+// POST /api/usuarios/login -> Iniciar sesión
+router.post('/login', usuarioControlador.iniciarSesion);
+
 // GET /api/usuarios/:id -> Ver un usuario por ID
 router.get('/:id', usuarioControlador.obtenerUsuarioPorId);
 

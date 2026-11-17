@@ -15,10 +15,12 @@ const obtenerPlatoPorIdDB = async (id) => {
 };
 
 // 3. Crear un plato nuevo
-const crearPlatoDB = async (nombre, descripcion, precio, categoria) => {
+const crearPlatoDB = async (plato) => {
     const { data, error } = await supabase
         .from('platos')
-        .insert([{ nombre, descripcion, precio, categoria }]);
+        .insert([plato])
+        .select()
+        .single();
     if (error) throw error;
     return data;
 };

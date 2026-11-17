@@ -56,10 +56,42 @@ const eliminarUsuario = async (req, res) => {
     }
 };
 
+// Iniciar sesión (validación simple contra la tabla usuarios)
+const iniciarSesion = async (req, res) => {
+    try {
+        const { username, password } = req.body;
+
+        if (!username || !password) {
+            return res.status(400).json({ error: "Usuario y contraseña son obligatorios" });
+        }
+
+        const usuarios = await usuarioServicio.obtenerUsuariosDB();
+        const usuario = usuarios.find(
+            (item) =>
+                (item.email === username || item.nombre === username) &&
+                item.password === password
+        );
+
+        if (!usuario) {
+            return res.status(401).json({ error: "Usuario o contraseña incorrectos" });
+        }
+
+        const { password: passwordGuardada, ...usuarioSeguro } = usuario;
+
+        return res.status(200).json({
+            mensaje: "Sesión iniciada correctamente",
+            usuario: usuarioSeguro
+        });
+    } catch (error) {
+        return res.status(500).json({ error: error.message });
+    }
+};
+
 module.exports = {
     obtenerUsuarios,
     obtenerUsuarioPorId,
     crearUsuario,
     actualizarUsuario,
-    eliminarUsuario
+    eliminarUsuario,
+    iniciarSesion
 };

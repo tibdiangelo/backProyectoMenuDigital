@@ -24,8 +24,16 @@ const obtenerPlatoPorId = async (req, res) => {
 // Crear plato
 const crearPlato = async (req, res) => {
     try {
-        const { nombre, descripcion, precio, categoria } = req.body;
-        const nuevoPlato = await platoServicio.crearPlatoDB(nombre, descripcion, precio, categoria);
+        const { nombre, precio, imagen, disponible, categoria_id } = req.body;
+        const descripcion = req.body['descripción'] ?? req.body.descripcion ?? '';
+        const nuevoPlato = await platoServicio.crearPlatoDB({
+            nombre,
+            'descripción': descripcion,
+            precio,
+            imagen,
+            disponible,
+            categoria_id
+        });
         res.status(201).json({ mensaje: "Plato creado con éxito", data: nuevoPlato });
     } catch (error) {
         res.status(500).json({ error: error.message });

@@ -15,10 +15,20 @@ const obtenerPedidoPorIdDB = async (id) => {
 };
 
 // 3. Crear un nuevo pedido
-const crearPedidoDB = async (mesa_id, usuario_id, total, estado) => {
+const crearPedidoDB = async (mesa_id, usuario_id, total, estado, cliente_nombre, notas) => {
     const { data, error } = await supabase
         .from('pedidos')
-        .insert([{ mesa_id, usuario_id, total, estado }]);
+        .insert([{
+            mesa_id,
+            usuario_id,
+            total,
+            estado,
+            cliente_nombre,
+            notas,
+            fecha: new Date().toISOString()
+        }])
+        .select()
+        .single();
     if (error) throw error;
     return data;
 };

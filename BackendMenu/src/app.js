@@ -14,7 +14,10 @@ const rolRutas =require("../routers/rol.ruta");
 
 
 app.use (express.json());
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:5173',
+  credentials: true,
+}));
 app.use("/api/mesas",  mesaRutas);
 app.use("/api/pedidos", pedidoRutas);
 app.use("/api/usuarios", usuarioRutas);
