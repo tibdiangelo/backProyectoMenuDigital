@@ -1,0 +1,10 @@
+GET http://localhost:3000/api/rol
+
+
+- platos: http:localhost:3000/api/platos
+- Categorías productos Http:localhost:3000/api/categorías 
+- Usuarios: Http:localhost:3000/api/usuarios 
+- Detalles pedido: Http:localhost:3000/api/detalles
+- Estados pedido: Http:localhost:3000/api/estados
+- Rol: Http:localhost:3000/api/rol
+* Pedidos: Http:localhost:3000/api/pedidos
