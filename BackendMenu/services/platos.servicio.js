@@ -1,6 +1,6 @@
 const supabase = require('./supabaseClient');
 
-const COLUMNAS_PLATO = 'id, nombre, descripcion, precio, categoria_id';
+const COLUMNAS_PLATO = 'id, nombre, descripción, precio, categoria_id';
 
 // 1. Obtener todos los platos ordenados desde BD (solo columnas necesarias)
 const obtenerPlatosDB = async () => {
@@ -31,7 +31,7 @@ const crearPlatoDB = async ({ nombre, descripcion, precio, categoria_id, categor
 
   const { data, error } = await supabase
     .from('platos')
-    .insert([{ nombre, descripcion, precio, categoria_id: categoriaValor }])
+    .insert([{ nombre, descripción, precio, categoria_id: categoriaValor }])
     .select(COLUMNAS_PLATO);
 
   if (error) throw error;
