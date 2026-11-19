@@ -1,20 +1,44 @@
 const express = require('express');
 const router = express.Router();
-const usuarioController = require('../controllers/usuarioController');
+const usuarioControlador = require('../controllers/usuario.controlador');
+const {
+  authMiddleware,
+  requireRole,
+} = require('../src/middlewares/auth.middleware');
 
-// GET /api/usuarios - Listar todos los usuarios
-router.get('/', usuarioController.listar);
+// GET /api/usuarios -> Listar todos los usuarios (solo administrador)
+router.get(
+  '/',
+  authMiddleware,
+  requireRole('administrador'),
+  usuarioControlador.obtenerUsuarios
+);
 
-// GET /api/usuarios/:id - Obtener un usuario por ID
-router.get('/:id', usuarioController.obtener);
+// GET /api/usuarios/:id -> Obtener usuario por ID (autenticado)
+router.get('/:id', authMiddleware, usuarioControlador.obtenerUsuarioPorId);
 
-// POST /api/usuarios - Crear un nuevo usuario
-router.post('/', usuarioController.crear);
+// POST /api/usuarios -> Crear usuario (solo administrador)
+router.post(
+  '/',
+  authMiddleware,
+  requireRole('administrador'),
+  usuarioControlador.crearUsuario
+);
 
-// PUT /api/usuarios/:id - Actualizar un usuario existente
-router.put('/:id', usuarioController.actualizar);
+// PUT /api/usuarios/:id -> Actualizar usuario (solo administrador)
+router.put(
+  '/:id',
+  authMiddleware,
+  requireRole('administrador'),
+  usuarioControlador.actualizarUsuario
+);
 
-// DELETE /api/usuarios/:id - Eliminar un usuario
-router.delete('/:id', usuarioController.eliminar);
+// DELETE /api/usuarios/:id -> Eliminar usuario (solo administrador)
+router.delete(
+  '/:id',
+  authMiddleware,
+  requireRole('administrador'),
+  usuarioControlador.eliminarUsuario
+);
 
 module.exports = router;
