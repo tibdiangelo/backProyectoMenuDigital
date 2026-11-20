@@ -39,6 +39,36 @@ const crearPedido = async (req, res) => {
     }
 };
 
+// Crear un pedido con todos sus detalles en una sola transacción
+const crearPedidoCompleto = async (req, res) => {
+    try {
+        const {
+            mesa_id,
+            usuario_id,
+            estado,
+            cliente_nombre,
+            notas,
+            detalles
+        } = req.body;
+
+        const nuevoPedido = await pedidoServicio.crearPedidoConDetallesDB({
+            mesa_id,
+            usuario_id,
+            estado,
+            cliente_nombre,
+            notas,
+            detalles
+        });
+
+        res.status(201).json({
+            mensaje: "Pedido creado con éxito",
+            data: nuevoPedido
+        });
+    } catch (error) {
+        res.status(error.status || 500).json({ error: error.message });
+    }
+};
+
 // Actualizar un pedido
 const actualizarPedido = async (req, res) => {
     try {
@@ -66,6 +96,7 @@ module.exports = {
     obtenerPedidos,
     obtenerPedidoPorId,
     crearPedido,
+    crearPedidoCompleto,
     actualizarPedido,
     eliminarPedido
 };

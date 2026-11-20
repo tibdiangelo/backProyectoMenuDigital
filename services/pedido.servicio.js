@@ -14,7 +14,46 @@ const obtenerPedidoPorIdDB = async (id) => {
     return data;
 };
 
-// 3. Crear un nuevo pedido
+// 3. Crear un pedido con todos sus detalles en una sola transacción
+const crearPedidoConDetallesDB = async ({
+    mesa_id,
+    usuario_id,
+    estado,
+    cliente_nombre,
+    notas,
+    detalles
+}) => {
+    const { data, error } = await supabase.rpc('crear_pedido_con_detalles', {
+        p_mesa_id: mesa_id ?? null,
+        p_usuario_id: usuario_id ?? null,
+        p_estado: estado ?? 'Pendiente',
+        p_cliente_nombre: cliente_nombre ?? null,
+        p_notas: notas ?? null,
+        p_detalles: detalles ?? []
+    });
+
+    if (error) {
+        if (error.code === 'PGRST202') {
+            const errorFuncion = new Error(
+                'Falta crear la función crear_pedido_con_detalles en Supabase. ' +
+                'Ejecuta scripts/crear-pedido-con-detalles.sql.'
+            );
+            errorFuncion.status = 500;
+            throw errorFuncion;
+        }
+
+        const esErrorDeValidacion = ['22023', '23503', '23514'].includes(error.code);
+        const errorPedido = new Error(
+            error.message || 'No se pudo crear el pedido.'
+        );
+        errorPedido.status = esErrorDeValidacion ? 400 : 500;
+        throw errorPedido;
+    }
+
+    return data;
+};
+
+// 3.1 Crear un pedido sin detalles (endpoint anterior)
 const crearPedidoDB = async (mesa_id, usuario_id, total, estado, cliente_nombre, notas) => {
     const { data, error } = await supabase
         .from('pedidos')
@@ -56,6 +95,7 @@ const eliminarPedidoDB = async (id) => {
 module.exports = {
     obtenerPedidosDB,
     obtenerPedidoPorIdDB,
+    crearPedidoConDetallesDB,
     crearPedidoDB,
     actualizarPedidoDB,
     eliminarPedidoDB

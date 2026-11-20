@@ -12,6 +12,9 @@ router.get('/:id', autenticar, autorizar('admin', 'chef'), pedidoControlador.obt
 // POST /api/pedidos -> Crear un nuevo pedido (público, lo usa el cliente)
 router.post('/', pedidoControlador.crearPedido);
 
+// POST /api/pedidos/completo -> Crear pedido + detalles en una transacción (público)
+router.post('/completo', pedidoControlador.crearPedidoCompleto);
+
 // PUT /api/pedidos/:id -> Actualizar un pedido o su estado (admin y chef)
 router.put('/:id', autenticar, autorizar('admin', 'chef'), pedidoControlador.actualizarPedido);
 
