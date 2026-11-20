@@ -1,7 +1,12 @@
 const jwt = require('jsonwebtoken');
 
-const JWT_SECRET =
-    process.env.JWT_SECRET || 'menu-digital-clave-por-defecto-cambiar';
+const JWT_SECRET = process.env.JWT_SECRET;
+
+if (!JWT_SECRET || !JWT_SECRET.trim()) {
+    throw new Error(
+        'Falta la variable de entorno JWT_SECRET. Defínela en el archivo .env antes de iniciar el servidor.'
+    );
+}
 
 function responderNoAutorizado(res, mensaje) {
     return res.status(401).json({ error: mensaje });
