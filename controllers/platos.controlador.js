@@ -2,6 +2,21 @@ const platoServicio = require('../services/platos.servicio');
 
 const LIMITE_POR_DEFECTO = 100;
 const LIMITE_MAXIMO = 100;
+const LIMITE_DESCRIPCION = 200;
+
+function normalizarDescripcion(valor) {
+    const texto = String(valor ?? '').trim();
+
+    if (texto.length > LIMITE_DESCRIPCION) {
+        const error = new Error(
+            `La descripción no puede superar los ${LIMITE_DESCRIPCION} caracteres.`
+        );
+        error.status = 400;
+        throw error;
+    }
+
+    return texto;
+}
 
 function obtenerPaginacion(query = {}) {
     const paginaSolicitada = Number(query.page);
@@ -51,7 +66,9 @@ const obtenerPlatoPorId = async (req, res) => {
 const crearPlato = async (req, res) => {
     try {
         const { nombre, precio, imagen, disponible, categoria_id } = req.body;
-        const descripcion = req.body['descripción'] ?? req.body.descripcion ?? '';
+        const descripcion = normalizarDescripcion(
+            req.body['descripción'] ?? req.body.descripcion
+        );
         const nuevoPlato = await platoServicio.crearPlatoDB({
             nombre,
             'descripción': descripcion,
@@ -62,7 +79,7 @@ const crearPlato = async (req, res) => {
         });
         res.status(201).json({ mensaje: "Plato creado con éxito", data: nuevoPlato });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(error.status || 500).json({ error: error.message });
     }
 };
 
@@ -70,11 +87,19 @@ const crearPlato = async (req, res) => {
 const actualizarPlato = async (req, res) => {
     try {
         const { id } = req.params;
-        const datosActualizar = req.body;
+        const datosActualizar = { ...req.body };
+
+        if ('descripción' in datosActualizar || 'descripcion' in datosActualizar) {
+            datosActualizar['descripción'] = normalizarDescripcion(
+                datosActualizar['descripción'] ?? datosActualizar.descripcion
+            );
+            delete datosActualizar.descripcion;
+        }
+
         const platoActualizado = await platoServicio.actualizarPlatoDB(id, datosActualizar);
         res.status(200).json({ mensaje: "Plato actualizado con éxito", data: platoActualizado });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(error.status || 500).json({ error: error.message });
     }
 };
 
