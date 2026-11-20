@@ -8,6 +8,8 @@ if (!JWT_SECRET || !JWT_SECRET.trim()) {
     );
 }
 
+const RUTA_CAMBIO_PASSWORD = '/api/usuarios/cambiar-password';
+
 function responderNoAutorizado(res, mensaje) {
     return res.status(401).json({ error: mensaje });
 }
@@ -26,6 +28,19 @@ function autenticar(req, res, next) {
 
     try {
         req.usuario = jwt.verify(token, JWT_SECRET);
+
+        const rutaActual = `${req.baseUrl}${req.path}`.replace(/\/+$/, '');
+
+        if (
+            req.usuario.debe_cambiar_password === true &&
+            rutaActual !== RUTA_CAMBIO_PASSWORD
+        ) {
+            return res.status(403).json({
+                error: 'Debes cambiar tu contraseña antes de continuar.',
+                debe_cambiar_password: true
+            });
+        }
+
         return next();
     } catch {
         return responderNoAutorizado(

@@ -17,7 +17,8 @@ function usuarioSeguro(usuario) {
         nombre: usuario.nombre,
         email: usuario.email,
         rol: normalizarRol(usuario.rol_id),
-        rol_id: usuario.rol_id
+        rol_id: usuario.rol_id,
+        debe_cambiar_password: Boolean(usuario.debe_cambiar_password)
     };
 }
 
@@ -206,7 +207,8 @@ const iniciarSesion = async (req, res) => {
                 id: usuario.id,
                 nombre: usuario.nombre,
                 email: usuario.email,
-                rol
+                rol,
+                debe_cambiar_password: Boolean(usuario.debe_cambiar_password)
             },
             JWT_SECRET,
             { expiresIn: '8h' }
@@ -222,11 +224,91 @@ const iniciarSesion = async (req, res) => {
     }
 };
 
+// Cambiar la contraseña del usuario autenticado y habilitar el resto de rutas
+const cambiarPassword = async (req, res) => {
+    try {
+        const { password_actual, password_nueva } = req.body ?? {};
+
+        if (!password_actual || !password_nueva) {
+            return res.status(400).json({
+                error: 'La contraseña actual y la nueva son obligatorias.'
+            });
+        }
+
+        if (String(password_nueva).length < LONGITUD_MINIMA_PASSWORD) {
+            return res.status(400).json({
+                error: `La contraseña debe tener al menos ${LONGITUD_MINIMA_PASSWORD} caracteres.`
+            });
+        }
+
+        const usuario = await usuarioServicio.obtenerUsuarioPorIdDB(
+            req.usuario.id
+        );
+
+        const coincideActual = await bcrypt.compare(
+            String(password_actual),
+            String(usuario.password ?? '')
+        );
+
+        if (!coincideActual) {
+            return res.status(400).json({
+                error: 'La contraseña actual es incorrecta.'
+            });
+        }
+
+        const esMismaPassword = await bcrypt.compare(
+            String(password_nueva),
+            String(usuario.password ?? '')
+        );
+
+        if (esMismaPassword) {
+            return res.status(400).json({
+                error: 'La nueva contraseña debe ser diferente de la actual.'
+            });
+        }
+
+        const passwordHasheada = await bcrypt.hash(
+            String(password_nueva),
+            10
+        );
+
+        const usuarioActualizado = await usuarioServicio.actualizarUsuarioDB(
+            usuario.id,
+            {
+                password: passwordHasheada,
+                debe_cambiar_password: false
+            }
+        );
+
+        const rol = normalizarRol(usuarioActualizado.rol_id);
+        const token = jwt.sign(
+            {
+                id: usuarioActualizado.id,
+                nombre: usuarioActualizado.nombre,
+                email: usuarioActualizado.email,
+                rol,
+                debe_cambiar_password: false
+            },
+            JWT_SECRET,
+            { expiresIn: '8h' }
+        );
+
+        return res.status(200).json({
+            mensaje: 'Contraseña actualizada correctamente',
+            token,
+            usuario: usuarioSeguro(usuarioActualizado)
+        });
+    } catch (error) {
+        return res.status(500).json({ error: error.message });
+    }
+};
+
 module.exports = {
     obtenerUsuarios,
     obtenerUsuarioPorId,
     crearUsuario,
     actualizarUsuario,
     eliminarUsuario,
-    iniciarSesion
+    iniciarSesion,
+    cambiarPassword
 };

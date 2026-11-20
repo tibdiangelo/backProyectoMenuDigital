@@ -6,6 +6,13 @@ const { autenticar, autorizar } = require('../src/middlewares/auth.middleware');
 // POST /api/usuarios/login -> Iniciar sesión (público)
 router.post('/login', usuarioControlador.iniciarSesion);
 
+// PUT /api/usuarios/cambiar-password -> Cambiar contraseña del usuario autenticado
+router.put(
+    '/cambiar-password',
+    autenticar,
+    usuarioControlador.cambiarPassword
+);
+
 // GET /api/usuarios -> Ver todos los usuarios (solo admin)
 router.get('/', autenticar, autorizar('admin'), usuarioControlador.obtenerUsuarios);
 

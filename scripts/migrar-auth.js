@@ -1,13 +1,33 @@
+try {
+    process.loadEnvFile();
+} catch {
+    // Si no existe .env, las variables pueden venir del entorno del proceso.
+}
+
 const bcrypt = require('bcryptjs');
 const supabase = require('../services/supabaseClient');
 
-const ADMIN_POR_DEFECTO = {
-    nombre: 'Administrador',
-    email: 'admin@pizzeria.com',
-    password: 'Admin1234*'
-};
-
 const ROL_ADMIN_POR_DEFECTO = 2;
+
+function obtenerAdminDesdeEntorno() {
+    const nombre = 'Administrador';
+    const email = String(process.env.ADMIN_EMAIL ?? '').trim().toLowerCase();
+    const password = String(process.env.ADMIN_PASSWORD ?? '');
+
+    if (!email || !password) {
+        throw new Error(
+            'Faltan las variables de entorno ADMIN_EMAIL y/o ADMIN_PASSWORD. Defínelas en el archivo .env antes de ejecutar la migración.'
+        );
+    }
+
+    if (password.length < 8) {
+        throw new Error(
+            'ADMIN_PASSWORD debe tener al menos 8 caracteres.'
+        );
+    }
+
+    return { nombre, email, password };
+}
 
 async function asegurarRol(nombre) {
     const { data, error } = await supabase
@@ -33,6 +53,8 @@ async function asegurarRol(nombre) {
 }
 
 async function main() {
+    const admin = obtenerAdminDesdeEntorno();
+
     console.log('1. Hasheando contraseñas existentes...');
 
     const { data: usuarios, error: errorUsuarios } = await supabase
@@ -66,31 +88,36 @@ async function main() {
 
     const adminExistente = (usuarios ?? []).find(
         (usuario) =>
-            String(usuario.email ?? '').toLowerCase() ===
-            ADMIN_POR_DEFECTO.email
+            String(usuario.email ?? '').toLowerCase() === admin.email
     );
 
-    const hashAdmin = await bcrypt.hash(ADMIN_POR_DEFECTO.password, 10);
-
     if (adminExistente) {
+        const camposActualizados = {
+            rol_id: rolAdmin ?? ROL_ADMIN_POR_DEFECTO
+        };
+
+        // Solo se fuerza el cambio si el indicador aún no está en false.
+        if (adminExistente.debe_cambiar_password !== false) {
+            camposActualizados.debe_cambiar_password = true;
+        }
+
         const { error } = await supabase
             .from('usuarios')
-            .update({
-                password: hashAdmin,
-                rol_id: rolAdmin ?? ROL_ADMIN_POR_DEFECTO
-            })
+            .update(camposActualizados)
             .eq('id', adminExistente.id);
 
         if (error) throw error;
 
-        console.log(`   Admin actualizado (id ${adminExistente.id}).`);
+        console.log(`   Admin asegurado (id ${adminExistente.id}).`);
     } else {
+        const hashAdmin = await bcrypt.hash(admin.password, 10);
         const { error } = await supabase.from('usuarios').insert([
             {
-                nombre: ADMIN_POR_DEFECTO.nombre,
-                email: ADMIN_POR_DEFECTO.email,
+                nombre: admin.nombre,
+                email: admin.email,
                 password: hashAdmin,
-                rol_id: rolAdmin ?? ROL_ADMIN_POR_DEFECTO
+                rol_id: rolAdmin ?? ROL_ADMIN_POR_DEFECTO,
+                debe_cambiar_password: true
             }
         ]);
 
@@ -101,8 +128,7 @@ async function main() {
 
     console.log('');
     console.log('Migración terminada.');
-    console.log(`Admin: ${ADMIN_POR_DEFECTO.email}`);
-    console.log(`Contraseña: ${ADMIN_POR_DEFECTO.password}`);
+    console.log(`Admin asegurado: ${admin.email}`);
 }
 
 main().catch((error) => {
