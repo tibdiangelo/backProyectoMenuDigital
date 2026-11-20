@@ -1,4 +1,4 @@
-GET http://localhost:3000/api/usuarios 
+GET GET POST http://localhost:3000/api/pedidos/completo
 
 
 - platos: http:localhost:3000/api/platos

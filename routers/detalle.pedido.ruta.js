@@ -6,8 +6,8 @@ const { autenticar, autorizar } = require("../src/middlewares/auth.middleware");
 // GET /api/detalles -> Ver detalles (admin y chef)
 router.get("/", autenticar, autorizar("admin", "chef"), detalleControlador.obtenerDetalles);
 
-// POST /api/detalles -> Crear detalle de pedido (público, lo usa el cliente)
-router.post("/", detalleControlador.crearDetalle);
+// POST /api/detalles -> Crear detalle de pedido (solo admin)
+router.post("/", autenticar, autorizar("admin"), detalleControlador.crearDetalle);
 
 // PUT /api/detalles/:id -> Actualizar detalle (solo admin)
 router.put("/:id", autenticar, autorizar("admin"), detalleControlador.actualizarDetalle);

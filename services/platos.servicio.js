@@ -1,10 +1,16 @@
 const  supabase  = require('./supabaseClient');
 
-// 1. Obtener todos los platos de la base de datos
-const obtenerPlatosDB = async () => {
-    const { data, error } = await supabase.from('platos').select('*');
+// 1. Obtener todos los platos de la base de datos (o una página)
+const obtenerPlatosDB = async (paginacion) => {
+    let consulta = supabase.from('platos').select('*', { count: 'exact' });
+
+    if (paginacion) {
+        consulta = consulta.range(paginacion.from, paginacion.to);
+    }
+
+    const { data, error, count } = await consulta;
     if (error) throw error;
-    return data;
+    return paginacion ? { data, count } : data;
 };
 
 // 2. Obtener un plato por su ID

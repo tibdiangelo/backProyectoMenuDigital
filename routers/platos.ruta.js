@@ -2,12 +2,13 @@ const express = require('express');
 const router = express.Router();
 const platosControlador = require('../controllers/platos.controlador');
 const { autenticar, autorizar } = require('../src/middlewares/auth.middleware');
+const { limitadorPublico } = require('../src/middlewares/rateLimit.middleware');
 
 // GET /api/platos -> Ver todos (público, lo usa el menú)
-router.get('/', platosControlador.obtenerPlatos);
+router.get('/', limitadorPublico, platosControlador.obtenerPlatos);
 
 // GET /api/platos/:id -> Ver uno solo por ID (público)
-router.get('/:id', platosControlador.obtenerPlatoPorId);
+router.get('/:id', limitadorPublico, platosControlador.obtenerPlatoPorId);
 
 // POST /api/platos -> Crear un nuevo plato (solo admin)
 router.post('/', autenticar, autorizar('admin'), platosControlador.crearPlato);

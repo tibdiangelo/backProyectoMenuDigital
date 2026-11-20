@@ -2,9 +2,10 @@ const express = require("express");
 const router = express.Router();
 const categoriaControlador = require("../controllers/categorias.platos.controlador");
 const { autenticar, autorizar } = require("../src/middlewares/auth.middleware");
+const { limitadorPublico } = require("../src/middlewares/rateLimit.middleware");
 
 // GET /api/categorias -> Ver categorías (público, lo usa el menú)
-router.get("/", categoriaControlador.obtenerCategorias);
+router.get("/", limitadorPublico, categoriaControlador.obtenerCategorias);
 
 // POST /api/categorias -> Crear categoría (solo admin)
 router.post("/", autenticar, autorizar("admin"), categoriaControlador.crearCategoria);

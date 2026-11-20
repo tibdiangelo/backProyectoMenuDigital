@@ -1,16 +1,22 @@
 const supabase = require("./supabaseClient");
 
-const obtenerCategoriasServicio = async () => {
-    const { data, error } = await supabase
+const obtenerCategoriasServicio = async (paginacion) => {
+    let consulta = supabase
         .from("categoria")
-        .select("*")
+        .select("*", { count: "exact" })
         .order("orden", { ascending: true });
+
+    if (paginacion) {
+        consulta = consulta.range(paginacion.from, paginacion.to);
+    }
+
+    const { data, error, count } = await consulta;
 
     if (error) {
         throw new Error(error.message);
     }
 
-    return data;
+    return paginacion ? { data, count } : data;
 };
 
 const crearCategoriaServicio = async (nombre, orden) => {

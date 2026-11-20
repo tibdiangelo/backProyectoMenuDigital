@@ -2,9 +2,10 @@ const express = require('express');
 const router = express.Router();
 const usuarioControlador = require('../controllers/usuario.controlador');
 const { autenticar, autorizar } = require('../src/middlewares/auth.middleware');
+const { limitadorLogin } = require('../src/middlewares/rateLimit.middleware');
 
 // POST /api/usuarios/login -> Iniciar sesión (público)
-router.post('/login', usuarioControlador.iniciarSesion);
+router.post('/login', limitadorLogin, usuarioControlador.iniciarSesion);
 
 // PUT /api/usuarios/cambiar-password -> Cambiar contraseña del usuario autenticado
 router.put(

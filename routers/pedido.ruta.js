@@ -2,6 +2,10 @@ const express = require('express');
 const router = express.Router();
 const pedidoControlador = require('../controllers/pedido.controlador');
 const { autenticar, autorizar } = require('../src/middlewares/auth.middleware');
+const {
+    limitadorPedidos,
+    validarOrigenPedido
+} = require('../src/middlewares/rateLimit.middleware');
 
 // GET /api/pedidos -> Ver todos los pedidos (admin y chef)
 router.get('/', autenticar, autorizar('admin', 'chef'), pedidoControlador.obtenerPedidos);
@@ -10,10 +14,22 @@ router.get('/', autenticar, autorizar('admin', 'chef'), pedidoControlador.obtene
 router.get('/:id', autenticar, autorizar('admin', 'chef'), pedidoControlador.obtenerPedidoPorId);
 
 // POST /api/pedidos -> Crear un nuevo pedido (público, lo usa el cliente)
-router.post('/', pedidoControlador.crearPedido);
+router.post(
+    '/',
+    validarOrigenPedido,
+    limitadorPedidos,
+    pedidoControlador.validarDatosPedido,
+    pedidoControlador.crearPedido
+);
 
 // POST /api/pedidos/completo -> Crear pedido + detalles en una transacción (público)
-router.post('/completo', pedidoControlador.crearPedidoCompleto);
+router.post(
+    '/completo',
+    validarOrigenPedido,
+    limitadorPedidos,
+    pedidoControlador.validarDatosPedido,
+    pedidoControlador.crearPedidoCompleto
+);
 
 // PUT /api/pedidos/:id -> Actualizar un pedido o su estado (admin y chef)
 router.put('/:id', autenticar, autorizar('admin', 'chef'), pedidoControlador.actualizarPedido);

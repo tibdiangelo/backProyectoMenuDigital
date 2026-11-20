@@ -1,5 +1,45 @@
 const pedidoServicio =require ('../services/pedido.servicio');
 
+const MAX_ITEMS_PEDIDO = 50;
+const MAX_CANTIDAD_ITEM = 20;
+
+// Valida la cantidad de ítems y la cantidad máxima por ítem.
+const validarDatosPedido = (req, res, next) => {
+    const { detalles } = req.body;
+
+    if (detalles === undefined) {
+        return next();
+    }
+
+    if (!Array.isArray(detalles)) {
+        return res.status(400).json({
+            error: 'El campo detalles debe ser un arreglo.'
+        });
+    }
+
+    if (detalles.length > MAX_ITEMS_PEDIDO) {
+        return res.status(400).json({
+            error: `El pedido no puede tener más de ${MAX_ITEMS_PEDIDO} ítems.`
+        });
+    }
+
+    for (const detalle of detalles) {
+        const cantidad = Number(detalle?.cantidad);
+
+        if (
+            !Number.isInteger(cantidad) ||
+            cantidad < 1 ||
+            cantidad > MAX_CANTIDAD_ITEM
+        ) {
+            return res.status(400).json({
+                error: `La cantidad de cada ítem debe ser un número entero entre 1 y ${MAX_CANTIDAD_ITEM}.`
+            });
+        }
+    }
+
+    return next();
+};
+
 // Listar todos los pedidos
 const obtenerPedidos = async (req, res) => {
     try {
@@ -93,6 +133,7 @@ const eliminarPedido = async (req, res) => {
 };
 
 module.exports = {
+    validarDatosPedido,
     obtenerPedidos,
     obtenerPedidoPorId,
     crearPedido,
